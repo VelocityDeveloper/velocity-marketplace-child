@@ -7,9 +7,6 @@ add_action('customize_register', 'vmc_customize_register', 40);
 
 function vmc_theme_setup()
 {
-    register_nav_menus([
-        'vmc_top_menu' => __('Marketplace Top Menu', 'justg'),
-    ]);
 }
 
 function vmc_sanitize_slide_rows($value)
@@ -20,20 +17,11 @@ function vmc_sanitize_slide_rows($value)
     ]);
 }
 
-function vmc_sanitize_feature_rows($value)
-{
-    return vmc_sanitize_repeater_json($value, [
-        'image_id' => 'image',
-        'title' => 'text',
-        'url' => 'url',
-    ]);
-}
-
 function vmc_sanitize_category_rows($value)
 {
     return vmc_sanitize_repeater_json($value, [
-        'image_id' => 'image',
         'term_id' => 'term',
+        'icon' => 'text',
     ]);
 }
 
@@ -67,7 +55,7 @@ function vmc_customize_register(WP_Customize_Manager $wp_customize)
     ]);
 
     $wp_customize->add_section('vmc_home_hero', [
-        'title' => __('Home Hero', 'justg'),
+        'title' => __('Slider & Banner', 'justg'),
         'panel' => $panel,
         'priority' => 10,
     ]);
@@ -84,18 +72,13 @@ function vmc_customize_register(WP_Customize_Manager $wp_customize)
         'add_button_label' => __('Tambah Slide', 'justg'),
         'fields' => [
             'image_id' => ['type' => 'image', 'label' => __('Gambar', 'justg')],
-            'title' => ['type' => 'text', 'label' => __('Judul', 'justg')],
             'url' => ['type' => 'url', 'label' => __('Link', 'justg')],
         ],
     ]));
 
-    $hero_visuals = [
-        'vmc_side_visual_top_image' => __('Visual Kanan Atas', 'justg'),
-        'vmc_side_visual_bottom_image' => __('Visual Kanan Bawah', 'justg'),
-        'vmc_spotlight_image' => __('Visual Atas Kategori', 'justg'),
-    ];
-
-    foreach ($hero_visuals as $setting_id => $label) {
+    foreach ([
+        'vmc_spotlight_image' => __('Banner Tengah', 'justg'),
+    ] as $setting_id => $label) {
         $wp_customize->add_setting($setting_id, [
             'default' => '',
             'sanitize_callback' => 'absint',
@@ -120,42 +103,35 @@ function vmc_customize_register(WP_Customize_Manager $wp_customize)
     }
 
     $wp_customize->add_section('vmc_home_features', [
-        'title' => __('Home Features', 'justg'),
+        'title' => __('Promo & Terlaris', 'justg'),
         'panel' => $panel,
         'priority' => 20,
     ]);
 
-    $wp_customize->add_setting('vmc_feature_rows', [
-        'default' => wp_json_encode([]),
-        'sanitize_callback' => 'vmc_sanitize_feature_rows',
+    $wp_customize->add_setting('vmc_promo_card_image', [
+        'default' => '',
+        'sanitize_callback' => 'absint',
     ]);
-
-    $wp_customize->add_control(new VMC_Repeater_Control($wp_customize, 'vmc_feature_rows', [
-        'label' => __('Gambar Fitur', 'justg'),
+    $wp_customize->add_control(new WP_Customize_Media_Control($wp_customize, 'vmc_promo_card_image', [
+        'label' => __('Gambar Blok Kiri', 'justg'),
         'section' => 'vmc_home_features',
-        'item_label' => __('Fitur', 'justg'),
-        'add_button_label' => __('Tambah Fitur', 'justg'),
-        'fields' => [
-            'image_id' => ['type' => 'image', 'label' => __('Gambar', 'justg')],
-            'url' => ['type' => 'url', 'label' => __('Link', 'justg')],
-        ],
+        'mime_type' => 'image',
     ]));
 
+    $wp_customize->add_setting('vmc_promo_card_url', [
+        'default' => '',
+        'sanitize_callback' => 'esc_url_raw',
+    ]);
+    $wp_customize->add_control('vmc_promo_card_url', [
+        'type' => 'url',
+        'label' => __('Link Blok Kiri', 'justg'),
+        'section' => 'vmc_home_features',
+    ]);
+
     $wp_customize->add_section('vmc_home_categories', [
-        'title' => __('Home Categories', 'justg'),
+        'title' => __('Kategori Chips', 'justg'),
         'panel' => $panel,
         'priority' => 30,
-    ]);
-
-    $wp_customize->add_setting('vmc_category_title', [
-        'default' => __('Kategori', 'justg'),
-        'sanitize_callback' => 'sanitize_text_field',
-    ]);
-
-    $wp_customize->add_control('vmc_category_title', [
-        'label' => __('Judul Kategori', 'justg'),
-        'section' => 'vmc_home_categories',
-        'type' => 'text',
     ]);
 
     $wp_customize->add_setting('vmc_category_rows', [
@@ -164,18 +140,18 @@ function vmc_customize_register(WP_Customize_Manager $wp_customize)
     ]);
 
     $wp_customize->add_control(new VMC_Repeater_Control($wp_customize, 'vmc_category_rows', [
-        'label' => __('Grid Kategori', 'justg'),
+        'label' => __('Chips Kategori', 'justg'),
         'section' => 'vmc_home_categories',
         'item_label' => __('Kategori', 'justg'),
         'add_button_label' => __('Tambah Kategori', 'justg'),
         'fields' => [
-            'image_id' => ['type' => 'image', 'label' => __('Gambar', 'justg')],
             'term_id' => ['type' => 'select', 'label' => __('Kategori Produk', 'justg'), 'choices' => vmc_product_category_choices()],
+            'icon' => ['type' => 'text', 'label' => __('Nama Icon Bootstrap', 'justg'), 'description' => __('Contoh: chat, bag, lightning, headset.', 'justg')],
         ],
     ]));
 
     $wp_customize->add_section('vmc_home_products', [
-        'title' => __('Home Products', 'justg'),
+        'title' => __('Produk Home', 'justg'),
         'panel' => $panel,
         'priority' => 40,
     ]);
@@ -200,45 +176,4 @@ function vmc_customize_register(WP_Customize_Manager $wp_customize)
         ]);
     }
 
-    $wp_customize->add_section('vmc_home_blog', [
-        'title' => __('Home Blog', 'justg'),
-        'panel' => $panel,
-        'priority' => 50,
-    ]);
-
-    $blog_categories = ['' => __('Semua Kategori', 'justg')];
-    foreach (get_categories(['hide_empty' => false]) as $category) {
-        $blog_categories[(string) $category->term_id] = $category->name;
-    }
-
-    $wp_customize->add_setting('vmc_blog_title', [
-        'default' => __('Blog', 'justg'),
-        'sanitize_callback' => 'sanitize_text_field',
-    ]);
-    $wp_customize->add_control('vmc_blog_title', [
-        'label' => __('Judul Blog', 'justg'),
-        'section' => 'vmc_home_blog',
-        'type' => 'text',
-    ]);
-
-    $wp_customize->add_setting('vmc_blog_category', [
-        'default' => '',
-        'sanitize_callback' => 'absint',
-    ]);
-    $wp_customize->add_control('vmc_blog_category', [
-        'label' => __('Kategori Post', 'justg'),
-        'section' => 'vmc_home_blog',
-        'type' => 'select',
-        'choices' => $blog_categories,
-    ]);
-
-    $wp_customize->add_setting('vmc_blog_limit', [
-        'default' => 2,
-        'sanitize_callback' => 'absint',
-    ]);
-    $wp_customize->add_control('vmc_blog_limit', [
-        'label' => __('Jumlah Post', 'justg'),
-        'section' => 'vmc_home_blog',
-        'type' => 'number',
-    ]);
 }

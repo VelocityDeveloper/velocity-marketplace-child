@@ -14,9 +14,9 @@ if (empty($active_areas)) {
     return;
 }
 ?>
-<div id="wrapper-footer" class="vmc-footer-shell">
+<div id="wrapper-footer" class="bg-light border-top mt-5 py-5">
     <div class="container">
-        <footer class="vmc-footer row g-4">
+        <footer class="row g-4">
             <?php
             $column_class = 'col-lg-3 col-md-6';
             if (count($active_areas) === 3) {
@@ -29,7 +29,9 @@ if (empty($active_areas)) {
             ?>
             <?php foreach ($active_areas as $sidebar_id) : ?>
                 <div class="<?php echo esc_attr($column_class); ?>">
-                    <?php dynamic_sidebar($sidebar_id); ?>
+                    <div class="h-100">
+                        <?php dynamic_sidebar($sidebar_id); ?>
+                    </div>
                 </div>
             <?php endforeach; ?>
         </footer>

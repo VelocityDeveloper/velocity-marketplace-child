@@ -377,11 +377,6 @@ function vmc_sanitize_repeater_json($value, $fields)
     return wp_json_encode($clean);
 }
 
-function vmc_feature_rows()
-{
-    return vmc_get_json_setting('vmc_feature_rows', []);
-}
-
 function vmc_category_rows()
 {
     return vmc_get_json_setting('vmc_category_rows', []);
