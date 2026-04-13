@@ -14,9 +14,9 @@ if (empty($active_areas)) {
     return;
 }
 ?>
-<div id="wrapper-footer" class="bg-light border-top mt-5 py-5">
+<footer id="wrapper-footer" class="bg-light border-top mt-5 py-5">
     <div class="container">
-        <footer class="row g-4">
+        <div class="row g-4">
             <?php
             $column_class = 'col-lg-3 col-md-6';
             if (count($active_areas) === 3) {
@@ -34,6 +34,11 @@ if (empty($active_areas)) {
                     </div>
                 </div>
             <?php endforeach; ?>
-        </footer>
+        </div>
     </div>
-</div>
+    <div class="footage p-3 text-muted text-center mt-4 opacity-75">
+        <small>
+            Design by <a class="text-muted" href="https://velocitydeveloper.com/" target="_blank" rel="noopener noreferrer">Velocity Developer</a>.
+        </small>
+    </div>
+</footer>

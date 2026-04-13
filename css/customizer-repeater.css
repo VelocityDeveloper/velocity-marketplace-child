@@ -60,3 +60,13 @@
     gap: 8px;
     align-items: center;
 }
+
+.vmc-editor-control__wrap {
+    background: #fff;
+    border: 1px solid #dcdcde;
+    padding: 10px;
+}
+
+.vmc-editor-control .wp-editor-wrap {
+    border: 0;
+}

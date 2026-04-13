@@ -43,3 +43,9 @@ function vmc_render_footer()
 {
     require get_stylesheet_directory() . '/inc/part-footer.php';
 }
+
+
+function vmc_unregister_sidebar() {
+	unregister_sidebar( 'main-sidebar' );
+}
+add_action( 'widgets_init', 'vmc_unregister_sidebar', 11 );

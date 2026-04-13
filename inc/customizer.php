@@ -30,7 +30,7 @@ function vmc_product_category_choices()
     $choices = [];
 
     $terms = get_terms([
-        'taxonomy' => 'vmp_product_cat',
+        'taxonomy' => 'store_product_cat',
         'hide_empty' => false,
     ]);
 
@@ -146,7 +146,7 @@ function vmc_customize_register(WP_Customize_Manager $wp_customize)
         'add_button_label' => __('Tambah Kategori', 'justg'),
         'fields' => [
             'term_id' => ['type' => 'select', 'label' => __('Kategori Produk', 'justg'), 'choices' => vmc_product_category_choices()],
-            'icon' => ['type' => 'text', 'label' => __('Nama Icon Bootstrap', 'justg'), 'description' => __('Contoh: chat, bag, lightning, headset.', 'justg')],
+            'icon' => ['type' => 'text', 'label' => __('Nama Icon Bootstrap', 'justg'), 'description' => __('Contoh: chat, bag, lightning, headset.<br> Daftar icon tersedia di https://icons.getbootstrap.com/', 'justg')],
         ],
     ]));
 
@@ -154,6 +154,12 @@ function vmc_customize_register(WP_Customize_Manager $wp_customize)
         'title' => __('Produk Home', 'justg'),
         'panel' => $panel,
         'priority' => 40,
+    ]);
+
+    $wp_customize->add_section('vmc_home_about', [
+        'title' => __('Tentang Kami', 'justg'),
+        'panel' => $panel,
+        'priority' => 50,
     ]);
 
     $product_settings = [
@@ -176,4 +182,26 @@ function vmc_customize_register(WP_Customize_Manager $wp_customize)
         ]);
     }
 
+    $wp_customize->add_setting('vmc_about_title', [
+        'default' => __('Tentang Kami', 'justg'),
+        'sanitize_callback' => 'sanitize_text_field',
+    ]);
+
+    $wp_customize->add_control('vmc_about_title', [
+        'label' => __('Judul Section', 'justg'),
+        'section' => 'vmc_home_about',
+        'type' => 'text',
+    ]);
+
+    $wp_customize->add_setting('vmc_about_content', [
+        'default' => '',
+        'sanitize_callback' => 'sanitize_textarea_field',
+    ]);
+
+    $wp_customize->add_control('vmc_about_content', [
+        'label' => __('Isi Tentang Kami', 'justg'),
+        'description' => __('Konten ini akan tampil di bagian paling bawah halaman depan.', 'justg'),
+        'section' => 'vmc_home_about',
+        'type' => 'textarea',
+    ]);
 }

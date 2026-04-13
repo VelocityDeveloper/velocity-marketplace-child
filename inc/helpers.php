@@ -164,7 +164,7 @@ function vmc_bootstrap_svg($slug, $class = '')
 function vmc_top_menu_fallback()
 {
     $terms = get_terms([
-        'taxonomy' => 'vmp_product_cat',
+        'taxonomy' => 'store_product_cat',
         'hide_empty' => true,
         'number' => 6,
     ]);
@@ -216,14 +216,45 @@ function vmc_marketplace_setting_url($type)
                 return \VelocityMarketplace\Support\Settings::profile_url();
             case 'tracking':
                 return \VelocityMarketplace\Support\Settings::tracking_url();
+            case 'catalog':
+                return \VelocityMarketplace\Support\Settings::catalog_url();
+            case 'cart':
+                return \VelocityMarketplace\Support\Settings::cart_url();
+            case 'checkout':
+                return \VelocityMarketplace\Support\Settings::checkout_url();
+        }
+    }
+
+    $settings = get_option('wp_store_settings', []);
+    $page_map = [
+        'catalog' => 'page_catalog',
+        'profile' => 'page_profile',
+        'cart' => 'page_cart',
+        'checkout' => 'page_checkout',
+        'tracking' => 'page_tracking',
+    ];
+
+    if (isset($page_map[$type])) {
+        $page_id = isset($settings[$page_map[$type]]) ? absint($settings[$page_map[$type]]) : 0;
+        if ($page_id > 0) {
+            $url = get_permalink($page_id);
+            if ($url) {
+                return $url;
+            }
         }
     }
 
     switch ($type) {
+        case 'catalog':
+            return get_post_type_archive_link('store_product') ?: home_url('/');
         case 'profile':
-            return home_url('/account/');
+            return home_url('/profil-saya/');
+        case 'cart':
+            return home_url('/keranjang/');
+        case 'checkout':
+            return home_url('/checkout/');
         case 'tracking':
-            return home_url('/order-tracking/');
+            return home_url('/tracking-order/');
         default:
             return home_url('/');
     }
@@ -231,28 +262,179 @@ function vmc_marketplace_setting_url($type)
 
 function vmc_product_search_url()
 {
-    $archive = get_post_type_archive_link('vmp_product');
-    return $archive ?: home_url('/');
+    return vmc_marketplace_setting_url('catalog');
+}
+
+function vmc_currency_symbol()
+{
+    if (class_exists('\\VelocityMarketplace\\Support\\Settings')) {
+        return (string) \VelocityMarketplace\Support\Settings::currency_symbol();
+    }
+
+    $settings = get_option('wp_store_settings', []);
+    return isset($settings['currency_symbol']) && is_string($settings['currency_symbol']) && $settings['currency_symbol'] !== ''
+        ? (string) $settings['currency_symbol']
+        : 'Rp';
+}
+
+function vmc_product_payload($product_id)
+{
+    $product_id = absint($product_id);
+    if ($product_id <= 0 || get_post_type($product_id) !== 'store_product') {
+        return null;
+    }
+
+    if (class_exists('\\VelocityMarketplace\\Modules\\Product\\ProductData')) {
+        $item = \VelocityMarketplace\Modules\Product\ProductData::map_post($product_id);
+        if (is_array($item) && !empty($item['id'])) {
+            return $item;
+        }
+    }
+
+    if (class_exists('\\WpStore\\Domain\\Product\\ProductData')) {
+        $item = \WpStore\Domain\Product\ProductData::map_post($product_id);
+        if (is_array($item) && !empty($item['id'])) {
+            return $item;
+        }
+    }
+
+    return null;
+}
+
+function vmc_product_price_html($item)
+{
+    $item = is_array($item) ? $item : [];
+    $price = isset($item['price']) && is_numeric($item['price']) ? (float) $item['price'] : null;
+    $regular_price = isset($item['regular_price']) && is_numeric($item['regular_price']) ? (float) $item['regular_price'] : null;
+    $sale_price = isset($item['sale_price']) && is_numeric($item['sale_price']) ? (float) $item['sale_price'] : null;
+    $currency = vmc_currency_symbol();
+
+    if ($price === null || $price < 0) {
+        return '';
+    }
+
+    $format = static function ($value) use ($currency) {
+        return $currency . ' ' . number_format((float) $value, 0, ',', '.');
+    };
+
+    if ($sale_price !== null && $sale_price > 0 && $regular_price !== null && $regular_price > $sale_price) {
+        return '<div class="d-flex align-items-baseline flex-wrap">'
+            . '<span class="fw-bold text-dark">' . esc_html($format($sale_price)) . '</span>'
+            . '<span class="small text-muted text-decoration-line-through opacity-75">' . esc_html($format($regular_price)) . '</span>'
+            . '</div>';
+    }
+
+    return '<div class="fw-semibold text-dark">' . esc_html($format($price)) . '</div>';
+}
+
+function vmc_product_meta_html($item)
+{
+    $item = is_array($item) ? $item : [];
+    $parts = [];
+
+    if (!empty($item['seller_city'])) {
+        $parts[] = '<div class="small text-uppercase text-muted">' . esc_html((string) $item['seller_city']) . '</div>';
+    }
+
+    if (!empty($item['sold_count'])) {
+        $parts[] = '<div class="small text-muted">' . esc_html(sprintf(__('%d terjual', 'justg'), (int) $item['sold_count'])) . '</div>';
+    }
+
+    $review_count = isset($item['review_count']) ? max(0, (int) $item['review_count']) : 0;
+    $rating_average = isset($item['rating_average']) ? max(0.0, (float) $item['rating_average']) : 0.0;
+    if ($review_count > 0) {
+        $parts[] = '<div class="small text-muted">' . esc_html(number_format_i18n($rating_average, 1) . '/5 dari ' . $review_count . ' ulasan') . '</div>';
+    } else {
+        $parts[] = '<div class="small text-muted">' . esc_html__('Belum ada ulasan', 'justg') . '</div>';
+    }
+
+    return implode('', $parts);
 }
 
 function vmc_product_card($product_id)
 {
     $product_id = absint($product_id);
-    if ($product_id <= 0 || get_post_type($product_id) !== 'vmp_product') {
+    $item = vmc_product_payload($product_id);
+    if (!$item || empty($item['id'])) {
         return '';
     }
 
-    if (shortcode_exists('vmp_product_card')) {
-        return do_shortcode('[vmp_product_card id="' . $product_id . '"]');
+    $link = isset($item['link']) ? (string) $item['link'] : get_permalink($product_id);
+    $title = isset($item['title']) && is_string($item['title']) && $item['title'] !== '' ? (string) $item['title'] : __('Produk', 'justg');
+    $price_html = vmc_product_price_html($item);
+    $meta_html = vmc_product_meta_html($item);
+
+    if (shortcode_exists('vmp_add_to_cart')) {
+        $action_html = do_shortcode('[vmp_add_to_cart id="' . $product_id . '" text="" class="btn btn-primary btn-sm w-100"]');
+    } elseif (shortcode_exists('wp_store_add_to_cart')) {
+        $action_html = do_shortcode('[wp_store_add_to_cart id="' . $product_id . '" text="" class="btn btn-primary btn-sm w-100 d-inline-flex align-items-center justify-content-center"]');
+    } else {
+        $action_html = '';
     }
 
-    return '';
+    $thumb_url = '';
+    if (!empty($item['image']) && is_string($item['image'])) {
+        $thumb_url = (string) $item['image'];
+    } else {
+        $thumb_url = vmc_get_no_image_url();
+    }
+
+    $html = '<article class="card h-100 border-0 shadow-sm overflow-hidden vmc-product-card">';
+    $html .= '<a href="' . esc_url($link) . '" class="ratio ratio-1x1 d-block text-decoration-none bg-light">';
+    $html .= '<img src="' . esc_url($thumb_url) . '" class="w-100 h-100 object-fit-cover" alt="' . esc_attr($title) . '" loading="lazy" decoding="async">';
+    $html .= '</a>';
+    $html .= '<div class="card-body d-flex flex-column p-3">';
+    $html .= '<h3 class="h6 mb-2 lh-sm"><a href="' . esc_url($link) . '" class="text-dark text-decoration-none vmc-line-clamp-2">' . esc_html($title) . '</a></h3>';
+    if ($price_html !== '') {
+        $html .= '<div class="mb-2 fw-bold">' . $price_html . '</div>';
+    }
+    if ($meta_html !== '') {
+        $html .= '<div class="mb-3">' . $meta_html . '</div>';
+    }
+    if ($action_html !== '') {
+        $html .= '<div class="mt-auto">' . $action_html . '</div>';
+    }
+    $html .= '</div></article>';
+
+    return $html;
+}
+
+function vmc_top_seller_card($product_id)
+{
+    $product_id = absint($product_id);
+    if ($product_id <= 0 || get_post_type($product_id) !== 'store_product') {
+        return '';
+    }
+
+    $link = get_permalink($product_id);
+    if (!$link) {
+        return '';
+    }
+
+    $title = get_the_title($product_id);
+    if ($title === '') {
+        $title = __('Produk', 'justg');
+    }
+
+    $thumb = vmc_thumbnail_html($product_id, [
+        'ratio' => '1x1',
+        'wrapper_class' => 'vmc-top-seller-card__thumb',
+        'image_class' => 'w-100 h-100 object-fit-cover',
+        'size' => 'medium',
+        'link' => $link,
+        'alt' => $title,
+    ]);
+
+    return '<a href="' . esc_url($link) . '" class="vmc-top-seller-card">'
+        . $thumb
+        . '<span class="vmc-top-seller-card__title">' . esc_html($title) . '</span>'
+        . '</a>';
 }
 
 function vmc_products_query($args = [])
 {
     $defaults = [
-        'post_type' => 'vmp_product',
+        'post_type' => 'store_product',
         'post_status' => 'publish',
         'posts_per_page' => 6,
         'ignore_sticky_posts' => true,
@@ -293,11 +475,17 @@ function vmc_shortcuts_html()
 {
     $items = [];
 
-    $sell_url = add_query_arg(['tab' => 'seller_home'], vmc_marketplace_setting_url('profile'));
-    $items[] = '<a href="' . esc_url(is_user_logged_in() ? $sell_url : wp_login_url($sell_url)) . '" class="vmc-quick-link"><span class="vmc-quick-link__icon">' . vmc_bootstrap_svg('plus') . '</span><span>' . esc_html__('Jual Barang', 'justg') . '</span></a>';
+    if (class_exists('\\VelocityMarketplace\\Modules\\Account\\Account')) {
+        $sell_url = add_query_arg(['tab' => 'seller_products'], vmc_marketplace_setting_url('profile'));
+    } else {
+        $sell_url = admin_url('post-new.php?post_type=store_product');
+    }
+    $items[] = '<a href="' . esc_url(is_user_logged_in() ? $sell_url : wp_login_url($sell_url)) . '" class="vmc-quick-link btn btn-link text-primary text-decoration-none p-0 border-0 shadow-none d-inline-flex align-items-center justify-content-center gap-2" aria-label="' . esc_attr__('Jual Barang', 'justg') . '"><span class="vmc-quick-link__icon">' . vmc_bootstrap_svg('plus') . '</span><span class="d-none d-xl-inline">' . esc_html__('Jual Barang', 'justg') . '</span></a>';
 
     if (shortcode_exists('vmp_cart')) {
         $items[] = do_shortcode('[vmp_cart class="vmc-quick-icon"]'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+    } else if (shortcode_exists('wp_store_cart')) {
+        $items[] = '<span class="vmc-quick-icon vmc-quick-icon--cart">' . do_shortcode('[wp_store_cart]') . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
     }
     if (shortcode_exists('vmp_notifications_icon')) {
         $items[] = do_shortcode('[vmp_notifications_icon class="vmc-quick-icon"]'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -307,6 +495,8 @@ function vmc_shortcuts_html()
     }
     if (shortcode_exists('vmp_profile_icon')) {
         $items[] = do_shortcode('[vmp_profile_icon class="vmc-quick-icon"]'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+    } elseif (shortcode_exists('wp_store_link_profile')) {
+        $items[] = '<span class="vmc-quick-icon vmc-quick-icon--profile">' . do_shortcode('[wp_store_link_profile]') . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
     }
 
     return implode('', $items);
