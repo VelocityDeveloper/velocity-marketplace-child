@@ -1,64 +1,139 @@
-.vmc-repeater-items {
-    display: grid;
-    gap: 12px;
+.vmc-repeater-control .vmc-repeater {
+    border: 0;
+    padding: 0;
+    background: transparent;
+}
+
+.vmc-repeater-control .vmc-repeater-items {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
     margin-bottom: 12px;
 }
 
-.vmc-repeater-item {
-    border: 1px solid #dcdcde;
+.vmc-repeater-control .vmc-repeater-item {
+    border: 1px solid #d5d5d5;
+    border-radius: 3px;
+    background: #f8f8f8;
+    overflow: hidden;
+}
+
+.vmc-repeater-control .vmc-repeater-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 12px 14px;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+}
+
+.vmc-repeater-control .vmc-repeater-item-label {
+    display: inline-block;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.vmc-repeater-control .vmc-repeater-toggle-icon {
+    width: 6px;
+    height: 6px;
+    border-right: 2px solid #555;
+    border-bottom: 2px solid #555;
+    transform: rotate(45deg);
+    transition: transform .2s ease;
+}
+
+.vmc-repeater-control .vmc-repeater-item.is-collapsed .vmc-repeater-toggle-icon {
+    transform: rotate(-45deg);
+}
+
+.vmc-repeater-control .vmc-repeater-item-body {
+    display: block;
+    padding: 12px 14px 14px;
+    border-top: 1px solid #e1e1e1;
     background: #fff;
-    padding: 12px;
 }
 
-.vmc-repeater-fields {
-    display: grid;
-    gap: 10px;
+.vmc-repeater-control .vmc-repeater-item.is-collapsed .vmc-repeater-item-body {
+    display: none;
 }
 
-.vmc-repeater-field label {
+.vmc-repeater-control .vmc-repeater-fields {
     display: block;
 }
 
-.vmc-repeater-label {
+.vmc-repeater-control .vmc-repeater-field {
+    display: block;
+    margin-bottom: 10px;
+}
+
+.vmc-repeater-control .vmc-repeater-field:last-child {
+    margin-bottom: 0;
+}
+
+.vmc-repeater-control .vmc-repeater-field label {
+    display: block;
+}
+
+.vmc-repeater-control .vmc-repeater-label {
     display: block;
     margin-bottom: 4px;
     font-weight: 600;
 }
 
-.vmc-repeater-field input,
-.vmc-repeater-field textarea,
-.vmc-repeater-field select {
+.vmc-repeater-control .vmc-repeater-field input,
+.vmc-repeater-control .vmc-repeater-field textarea,
+.vmc-repeater-control .vmc-repeater-field select {
     width: 100%;
+    box-sizing: border-box;
 }
 
-.vmc-repeater-actions {
+.vmc-repeater-control .vmc-repeater-actions {
     display: flex;
+    justify-content: flex-end;
     gap: 8px;
     margin-top: 12px;
 }
 
-.vmc-repeater-media-preview {
+.vmc-repeater-control .vmc-repeater-remove {
+    background: #dc3232 !important;
+    border-color: #dc3232 !important;
+    color: #fff !important;
+    box-shadow: none !important;
+}
+
+.vmc-repeater-control .vmc-repeater-media-preview {
     width: 100%;
-    max-width: 160px;
-    aspect-ratio: 1 / 1;
-    border: 1px dashed #c3c4c7;
-    margin-bottom: 8px;
+    border: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
 }
 
-.vmc-repeater-media-preview img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+.vmc-repeater-control .vmc-repeater-media-preview.has-image {
+    border-style: solid;
 }
 
-.vmc-repeater-media-actions {
+.vmc-repeater-control .vmc-repeater-media-preview img {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
+.vmc-repeater-control .vmc-repeater-media-actions {
     display: flex;
-    gap: 8px;
     align-items: center;
+    gap: 8px;
+    margin-top: 8px;
 }
 
 .vmc-editor-control__wrap {

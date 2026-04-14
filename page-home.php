@@ -26,7 +26,7 @@ $premium_query = vmc_products_query([
     'posts_per_page' => $premium_limit,
     'meta_key'       => 'is_premium',
     'meta_value'     => '1',
-    'orderby'        => ['meta_value_num' => 'DESC', 'date' => 'DESC'],
+    'orderby'        => 'rand',
 ]);
 
 $latest_query = vmc_products_query([
@@ -57,7 +57,7 @@ $promo_col_class = $has_top_sellers ? 'col-lg-6' : 'col-12';
 $top_col_class = $promo_image ? 'col-lg-6' : 'col-12';
 ?>
 
-<div class="vmc-home">
+<div class="wrapper" id="page-wrapper">
     <div class="container">
         <?php if ($has_slider) : ?>
             <section class="vmc-home__section mb-5">
@@ -70,9 +70,7 @@ $top_col_class = $promo_image ? 'col-lg-6' : 'col-12';
                                     <?php if (!$image_url) { continue; } ?>
                                     <div class="carousel-item<?php echo $index === 0 ? ' active' : ''; ?>">
                                         <a href="<?php echo esc_url((string) ($row['url'] ?? home_url('/'))); ?>" class="d-block text-decoration-none">
-                                            <div class="ratio ratio-16x9">
-                                                <img src="<?php echo esc_url($image_url); ?>" class="w-100 h-100 object-fit-cover rounded" alt="" loading="lazy" decoding="async">
-                                            </div>
+                                            <img src="<?php echo esc_url($image_url); ?>" class="w-100 rounded" alt="" loading="lazy" decoding="async">
                                         </a>
                                     </div>
                                 <?php endforeach; ?>
@@ -99,10 +97,8 @@ $top_col_class = $promo_image ? 'col-lg-6' : 'col-12';
                             <div class="row g-4 align-items-stretch">
                                 <?php if ($promo_image) : ?>
                                     <div class="<?php echo esc_attr($promo_col_class); ?>">
-                                        <a href="<?php echo esc_url($promo_url); ?>" class="d-block text-decoration-none card overflow-hidden h-100">
-                                            <div class="ratio ratio-16x9">
-                                                <img src="<?php echo esc_url($promo_image); ?>" class="w-100 h-100 object-fit-cover rounded" alt="" loading="lazy" decoding="async">
-                                            </div>
+                                        <a href="<?php echo esc_url($promo_url); ?>" class="d-block text-decoration-none">
+                                            <img src="<?php echo esc_url($promo_image); ?>" class="w-100 rounded" alt="" loading="lazy" decoding="async">
                                         </a>
                                     </div>
                                 <?php endif; ?>
@@ -165,18 +161,9 @@ $top_col_class = $promo_image ? 'col-lg-6' : 'col-12';
             </section>
         <?php endif; ?>
 
-        <?php $category_banner = wp_get_attachment_image_url((int) get_theme_mod('vmc_spotlight_image', 0), 'full'); ?>
-        <?php if ($category_banner) : ?>
-            <section class="vmc-home__section mb-5 text-center">
-                <a href="<?php echo esc_url((string) get_theme_mod('vmc_spotlight_image_url', home_url('/'))); ?>" class="d-block text-decoration-none">
-                    <img src="<?php echo esc_url($category_banner); ?>" class="rounded" alt="" loading="lazy" decoding="async">
-                </a>
-            </section>
-        <?php endif; ?>
-
         <?php if ($premium_query->have_posts()) : ?>
             <section class="vmc-home__section mb-5">
-                <h2 class="h3 mb-3"><?php echo vmc_bootstrap_svg('star-fill', 'me-2 text-warning'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?><?php echo esc_html($premium_title); ?></h2>
+                <h2 class="h4 fw-bold mb-3"><?php echo vmc_bootstrap_svg('star-fill', 'me-2 text-warning'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?><?php echo esc_html($premium_title); ?></h2>
                 <div class="vmc-product-grid">
                     <?php while ($premium_query->have_posts()) : $premium_query->the_post(); ?>
                         <?php echo vmc_product_card(get_the_ID()); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>

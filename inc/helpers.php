@@ -57,7 +57,7 @@ if (!class_exists('VMC_Repeater_Control') && class_exists('WP_Customize_Control'
                     <p class="description"><?php echo wp_kses_post($this->description); ?></p>
                 <?php endif; ?>
 
-                <div class="vmc-repeater" data-fields="<?php echo esc_attr(wp_json_encode($this->fields)); ?>">
+                <div class="vmc-repeater" data-fields="<?php echo esc_attr(wp_json_encode($this->fields)); ?>" data-default-label="<?php echo esc_attr($this->item_label !== '' ? $this->item_label : __('Item', 'justg')); ?>">
                     <input type="hidden" class="vmc-repeater-store" <?php $this->link(); ?> value="<?php echo esc_attr($encoded_value); ?>">
                     <div class="vmc-repeater-items">
                         <?php foreach ($value as $item) : ?>
@@ -78,56 +78,65 @@ if (!class_exists('VMC_Repeater_Control') && class_exists('WP_Customize_Control'
         private function item_markup($values)
         {
             $values = is_array($values) ? $values : [];
+            $summary = $this->item_label !== '' ? $this->item_label : __('Item', 'justg');
 
             ob_start();
             ?>
             <div class="vmc-repeater-item">
-                <div class="vmc-repeater-fields">
-                    <?php foreach ($this->fields as $field_key => $field) : ?>
-                        <?php
-                        $type = isset($field['type']) ? (string) $field['type'] : 'text';
-                        $label = isset($field['label']) ? (string) $field['label'] : '';
-                        $description = isset($field['description']) ? (string) $field['description'] : '';
-                        $default = isset($field['default']) ? (string) $field['default'] : '';
-                        $current = isset($values[$field_key]) ? $values[$field_key] : $default;
-                        ?>
-                        <div class="vmc-repeater-field">
-                            <label>
-                                <span class="vmc-repeater-label"><?php echo esc_html($label); ?></span>
-                                <?php if ($type === 'image') : ?>
-                                    <?php $image_id = absint($current); ?>
-                                    <?php $image_url = $image_id ? wp_get_attachment_image_url($image_id, 'thumbnail') : ''; ?>
-                                    <input type="hidden" data-field="<?php echo esc_attr($field_key); ?>" value="<?php echo esc_attr((string) $image_id); ?>">
-                                    <div class="vmc-repeater-media-preview<?php echo $image_url ? ' has-image' : ''; ?>">
-                                        <?php if ($image_url) : ?>
-                                            <img src="<?php echo esc_url($image_url); ?>" alt="">
-                                        <?php endif; ?>
-                                    </div>
-                                    <div class="vmc-repeater-media-actions">
-                                        <button type="button" class="button vmc-repeater-media-select"><?php esc_html_e('Pilih Gambar', 'justg'); ?></button>
-                                        <button type="button" class="button-link-delete vmc-repeater-media-remove"><?php esc_html_e('Hapus', 'justg'); ?></button>
-                                    </div>
-                                <?php elseif ($type === 'select') : ?>
-                                    <select data-field="<?php echo esc_attr($field_key); ?>">
-                                        <?php foreach ((array) ($field['choices'] ?? []) as $choice_value => $choice_label) : ?>
-                                            <option value="<?php echo esc_attr((string) $choice_value); ?>" <?php selected((string) $current, (string) $choice_value); ?>>
-                                                <?php echo esc_html((string) $choice_label); ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                <?php else : ?>
-                                    <input type="<?php echo esc_attr($type); ?>" data-field="<?php echo esc_attr($field_key); ?>" value="<?php echo esc_attr((string) $current); ?>">
+                <button type="button" class="vmc-repeater-toggle" aria-expanded="true">
+                    <span class="vmc-repeater-item-label"><?php echo esc_html($summary); ?></span>
+                    <span class="vmc-repeater-toggle-icon" aria-hidden="true"></span>
+                </button>
+
+                <div class="vmc-repeater-item-body">
+                    <div class="vmc-repeater-fields">
+                        <?php foreach ($this->fields as $field_key => $field) : ?>
+                            <?php
+                            $type = isset($field['type']) ? (string) $field['type'] : 'text';
+                            $label = isset($field['label']) ? (string) $field['label'] : '';
+                            $description = isset($field['description']) ? (string) $field['description'] : '';
+                            $default = isset($field['default']) ? (string) $field['default'] : '';
+                            $current = isset($values[$field_key]) ? $values[$field_key] : $default;
+                            ?>
+                            <div class="vmc-repeater-field">
+                                <label>
+                                    <span class="vmc-repeater-label"><?php echo esc_html($label); ?></span>
+                                    <?php if ($type === 'image') : ?>
+                                        <?php $image_id = absint($current); ?>
+                                        <?php $image_url = $image_id ? wp_get_attachment_image_url($image_id, 'medium_large') : ''; ?>
+                                        <input type="hidden" data-field="<?php echo esc_attr($field_key); ?>" value="<?php echo esc_attr((string) $image_id); ?>">
+                                        <div class="vmc-repeater-media-preview<?php echo $image_url ? ' has-image' : ''; ?>">
+                                            <?php if ($image_url) : ?>
+                                                <img src="<?php echo esc_url($image_url); ?>" alt="">
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="vmc-repeater-media-actions">
+                                            <button type="button" class="button vmc-repeater-media-select"><?php esc_html_e('Pilih Gambar', 'justg'); ?></button>
+                                        </div>
+                                    <?php elseif ($type === 'select') : ?>
+                                        <select data-field="<?php echo esc_attr($field_key); ?>">
+                                            <?php foreach ((array) ($field['choices'] ?? []) as $choice_value => $choice_label) : ?>
+                                                <option value="<?php echo esc_attr((string) $choice_value); ?>" <?php selected((string) $current, (string) $choice_value); ?>>
+                                                    <?php echo esc_html((string) $choice_label); ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    <?php elseif ($type === 'textarea') : ?>
+                                        <textarea data-field="<?php echo esc_attr($field_key); ?>"><?php echo esc_textarea((string) $current); ?></textarea>
+                                    <?php else : ?>
+                                        <input type="<?php echo esc_attr($type); ?>" data-field="<?php echo esc_attr($field_key); ?>" value="<?php echo esc_attr((string) $current); ?>">
+                                    <?php endif; ?>
+                                </label>
+                                <?php if ($description !== '') : ?>
+                                    <p class="description"><?php echo wp_kses_post($description); ?></p>
                                 <?php endif; ?>
-                            </label>
-                            <?php if ($description !== '') : ?>
-                                <p class="description"><?php echo wp_kses_post($description); ?></p>
-                            <?php endif; ?>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-                <div class="vmc-repeater-actions">
-                    <button type="button" class="button vmc-repeater-clone"><?php esc_html_e('Clone', 'justg'); ?></button>
-                    <button type="button" class="button button-secondary vmc-repeater-remove"><?php esc_html_e('Hapus', 'justg'); ?></button>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                    <div class="vmc-repeater-actions">
+                        <button type="button" class="button vmc-repeater-clone"><?php esc_html_e('Clone', 'justg'); ?></button>
+                        <button type="button" class="button button-secondary vmc-repeater-remove"><?php esc_html_e('Hapus', 'justg'); ?></button>
+                    </div>
                 </div>
             </div>
             <?php
@@ -151,6 +160,7 @@ function vmc_bootstrap_svg($slug, $class = '')
         'search' => '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/></svg>',
         'plus' => '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 4a.5.5 0 0 1 .5.5V7.5H11.5a.5.5 0 0 1 0 1H8.5V11.5a.5.5 0 0 1-1 0V8.5H4.5a.5.5 0 0 1 0-1H7.5V4.5A.5.5 0 0 1 8 4"/></svg>',
         'star-fill' => '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187z"/></svg>',
+        'geo-alt' => '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-geo-alt" viewBox="0 0 16 16"> <path d="M12.166 8.94c-.524 1.062-1.234 2.12-1.96 3.07A32 32 0 0 1 8 14.58a32 32 0 0 1-2.206-2.57c-.726-.95-1.436-2.008-1.96-3.07C3.304 7.867 3 6.862 3 6a5 5 0 0 1 10 0c0 .862-.305 1.867-.834 2.94M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10"/> <path d="M8 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4m0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/> </svg>',
     ];
 
     $svg = isset($icons[$slug]) ? $icons[$slug] : $icons['star-fill'];
@@ -318,7 +328,7 @@ function vmc_product_price_html($item)
     };
 
     if ($sale_price !== null && $sale_price > 0 && $regular_price !== null && $regular_price > $sale_price) {
-        return '<div class="d-flex align-items-baseline flex-wrap">'
+        return '<div class="d-flex align-items-baseline flex-wrap gap-1">'
             . '<span class="fw-bold text-dark">' . esc_html($format($sale_price)) . '</span>'
             . '<span class="small text-muted text-decoration-line-through opacity-75">' . esc_html($format($regular_price)) . '</span>'
             . '</div>';
@@ -330,25 +340,78 @@ function vmc_product_price_html($item)
 function vmc_product_meta_html($item)
 {
     $item = is_array($item) ? $item : [];
+
     $parts = [];
 
-    if (!empty($item['seller_city'])) {
-        $parts[] = '<div class="small text-uppercase text-muted">' . esc_html((string) $item['seller_city']) . '</div>';
-    }
-
-    if (!empty($item['sold_count'])) {
-        $parts[] = '<div class="small text-muted">' . esc_html(sprintf(__('%d terjual', 'justg'), (int) $item['sold_count'])) . '</div>';
-    }
-
-    $review_count = isset($item['review_count']) ? max(0, (int) $item['review_count']) : 0;
+    // Data meta
+    $review_count   = isset($item['review_count']) ? max(0, (int) $item['review_count']) : 0;
     $rating_average = isset($item['rating_average']) ? max(0.0, (float) $item['rating_average']) : 0.0;
-    if ($review_count > 0) {
-        $parts[] = '<div class="small text-muted">' . esc_html(number_format_i18n($rating_average, 1) . '/5 dari ' . $review_count . ' ulasan') . '</div>';
+    $sold_count     = isset($item['sold_count']) ? max(0, (int) $item['sold_count']) : 0;
+
+    $meta_parts = [];
+
+    // Rating
+    if ($review_count > 0 && $rating_average > 0) {
+        $meta_parts[] =
+            '<span class="d-inline-flex align-items-center">' .
+                '<span class="me-1 text-warning">' . vmc_bootstrap_svg('star', 'align-middle') . '</span>' .
+                '<span class="align-middle lh-sm">' . esc_html(number_format_i18n($rating_average, 1)) . '</span>' .
+            '</span>';
     } else {
-        $parts[] = '<div class="small text-muted">' . esc_html__('Belum ada ulasan', 'justg') . '</div>';
+        $meta_parts[] =
+            '<span class="d-inline-flex align-items-center opacity-75">' .
+                esc_html__('Belum ada ulasan', 'justg') .
+            '</span>';
+    }
+
+    // Separator
+    if (!empty($meta_parts) && $sold_count > 0) {
+        $meta_parts[] = '<span class="mx-1 align-middle">·</span>';
+    }
+
+    // Sold count
+    if ($sold_count > 0) {
+        $meta_parts[] = '<span class="align-middle lh-sm">' . esc_html(vmc_format_sold_count($sold_count) . ' terjual') . '</span>';
+    }
+
+    // Baris 1: rating + sold
+    if (!empty($meta_parts)) {
+        $parts[] = '<div class="small text-muted d-flex align-items-center flex-wrap">' . implode('', $meta_parts) . '</div>';
+    }
+
+    // Baris 2: lokasi
+    if (!empty($item['seller_city'])) {
+        $icon = vmc_bootstrap_svg('geo-alt', 'me-1 align-middle');
+        $parts[] =
+            '<div class="small text-uppercase text-muted mt-1">' .
+                $icon .
+                '<span class="align-middle">' . esc_html((string) $item['seller_city']) . '</span>' .
+            '</div>';
     }
 
     return implode('', $parts);
+}
+
+function vmc_format_sold_count($count)
+{
+    $count = (int) $count;
+
+    if ($count >= 1000000000) {
+        $value = floor($count / 100000000) / 10;
+        return rtrim(rtrim(number_format($value, 1, '.', ''), '0'), '.') . 'rb+';
+    }
+
+    if ($count >= 1000) {
+        $value = $count / 1000;
+
+        if (floor($value) == $value) {
+            return number_format_i18n($value, 0) . 'rb+';
+        }
+
+        return str_replace('.', ',', number_format($value, 1)) . 'rb+';
+    }
+
+    return number_format_i18n($count);
 }
 
 function vmc_product_card($product_id)
@@ -380,10 +443,16 @@ function vmc_product_card($product_id)
     }
 
     $html = '<article class="card h-100 border-0 shadow-sm overflow-hidden vmc-product-card">';
-    $html .= '<a href="' . esc_url($link) . '" class="ratio ratio-1x1 d-block text-decoration-none bg-light">';
-    $html .= '<img src="' . esc_url($thumb_url) . '" class="w-100 h-100 object-fit-cover" alt="' . esc_attr($title) . '" loading="lazy" decoding="async">';
-    $html .= '</a>';
-    $html .= '<div class="card-body d-flex flex-column p-3">';
+    $html .= '<div class="vmp-product-image position-relative">';
+        $html .= '<a href="' . esc_url($link) . '" class="ratio ratio-1x1 d-block text-decoration-none bg-light">';
+            $html .= '<img src="' . esc_url($thumb_url) . '" class="w-100 h-100 object-fit-cover" alt="' . esc_attr($title) . '" loading="lazy" decoding="async">';
+        $html .= '</a>';
+        $html .= vmp_premium_badge_html([
+            'post_id' => $product_id,
+            'class' => 'badge bg-warning text-dark position-absolute start-0 top-0 ms-2 mt-2',
+        ]);
+    $html .= '</div>';
+    $html .= '<div class="card-body">';
     $html .= '<h3 class="h6 mb-2 lh-sm"><a href="' . esc_url($link) . '" class="text-dark text-decoration-none vmc-line-clamp-2">' . esc_html($title) . '</a></h3>';
     if ($price_html !== '') {
         $html .= '<div class="mb-2 fw-bold">' . $price_html . '</div>';

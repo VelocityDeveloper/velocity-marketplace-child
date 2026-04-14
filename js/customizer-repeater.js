@@ -13,6 +13,27 @@
         });
 
         $repeater.find('.vmc-repeater-store').val(JSON.stringify(items)).trigger('change');
+        updateSummaries($repeater);
+    }
+
+    function updateSummaries($repeater) {
+        var base = $repeater.data('default-label') || 'Item';
+
+        $repeater.find('.vmc-repeater-item').each(function (index) {
+            $(this).find('.vmc-repeater-item-label').text(base + ' ' + (index + 1));
+        });
+    }
+
+    function toggleItem($item, forceOpen) {
+        var open = typeof forceOpen === 'boolean' ? forceOpen : $item.hasClass('is-collapsed');
+
+        if (open) {
+            $item.removeClass('is-collapsed');
+            $item.find('.vmc-repeater-toggle').attr('aria-expanded', 'true');
+        } else {
+            $item.addClass('is-collapsed');
+            $item.find('.vmc-repeater-toggle').attr('aria-expanded', 'false');
+        }
     }
 
     function bindMedia($context, $repeater) {
@@ -32,7 +53,10 @@
 
             frame.on('select', function () {
                 var attachment = frame.state().get('selection').first().toJSON();
-                var thumb = attachment.sizes && attachment.sizes.thumbnail ? attachment.sizes.thumbnail.url : attachment.url;
+                var thumb = attachment.sizes && attachment.sizes.medium_large ? attachment.sizes.medium_large.url
+                    : attachment.sizes && attachment.sizes.medium ? attachment.sizes.medium.url
+                    : attachment.sizes && attachment.sizes.thumbnail ? attachment.sizes.thumbnail.url
+                    : attachment.url;
                 $input.val(attachment.id).trigger('change');
                 $preview.addClass('has-image').html('<img src="' + thumb + '" alt="">');
                 updateStore($repeater);
@@ -55,9 +79,15 @@
         var template = $repeater.find('.vmc-repeater-template').html();
 
         bindMedia($repeater, $repeater);
+        updateSummaries($repeater);
 
         $repeater.on('input change', '[data-field]', function () {
             updateStore($repeater);
+        });
+
+        $repeater.on('click', '.vmc-repeater-toggle', function (event) {
+            event.preventDefault();
+            toggleItem($(this).closest('.vmc-repeater-item'));
         });
 
         $repeater.find('.vmc-repeater-add').on('click', function (event) {
@@ -66,6 +96,7 @@
             var $item = $(template);
             $repeater.find('.vmc-repeater-items').append($item);
             bindMedia($item, $repeater);
+            toggleItem($item, true);
             updateStore($repeater);
         });
 
@@ -82,7 +113,12 @@
             var $clone = $current.clone();
             $repeater.find('.vmc-repeater-items').append($clone);
             bindMedia($clone, $repeater);
+            toggleItem($clone, true);
             updateStore($repeater);
+        });
+
+        $repeater.find('.vmc-repeater-item').each(function () {
+            toggleItem($(this), false);
         });
     }
 

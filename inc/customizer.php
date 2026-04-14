@@ -55,7 +55,7 @@ function vmc_customize_register(WP_Customize_Manager $wp_customize)
     ]);
 
     $wp_customize->add_section('vmc_home_hero', [
-        'title' => __('Slider & Banner', 'justg'),
+        'title' => __('Slider', 'justg'),
         'panel' => $panel,
         'priority' => 10,
     ]);
@@ -75,33 +75,8 @@ function vmc_customize_register(WP_Customize_Manager $wp_customize)
             'url' => ['type' => 'url', 'label' => __('Link', 'justg')],
         ],
     ]));
-
-    foreach ([
-        'vmc_spotlight_image' => __('Banner Tengah', 'justg'),
-    ] as $setting_id => $label) {
-        $wp_customize->add_setting($setting_id, [
-            'default' => '',
-            'sanitize_callback' => 'absint',
-        ]);
-
-        $wp_customize->add_control(new WP_Customize_Media_Control($wp_customize, $setting_id, [
-            'label' => $label,
-            'section' => 'vmc_home_hero',
-            'mime_type' => 'image',
-        ]));
-
-        $wp_customize->add_setting($setting_id . '_url', [
-            'default' => '',
-            'sanitize_callback' => 'esc_url_raw',
-        ]);
-
-        $wp_customize->add_control($setting_id . '_url', [
-            'type' => 'url',
-            'label' => sprintf(__('Link %s', 'justg'), $label),
-            'section' => 'vmc_home_hero',
-        ]);
-    }
-
+    
+    
     $wp_customize->add_section('vmc_home_features', [
         'title' => __('Promo & Terlaris', 'justg'),
         'panel' => $panel,
