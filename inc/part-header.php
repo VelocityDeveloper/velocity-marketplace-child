@@ -60,7 +60,7 @@ defined('ABSPATH') || exit;
             <div class="col-12 col-lg">
                 <form class="vmc-search-form" action="<?php echo esc_url(vmc_product_search_url()); ?>" method="get">
                     <div class="input-group border rounded-3 overflow-hidden bg-white">
-                        <input type="text" class="form-control border-0" name="search" value="<?php echo isset($_GET['search']) ? esc_attr((string) wp_unslash($_GET['search'])) : ''; ?>" placeholder="<?php echo esc_attr__('Cari Produk', 'justg'); ?>" required>
+                        <input type="text" class="form-control border-0" name="s" value="<?php echo isset($_GET['s']) ? esc_attr((string) wp_unslash($_GET['s'])) : (isset($_GET['search']) ? esc_attr((string) wp_unslash($_GET['search'])) : ''); ?>" placeholder="<?php echo esc_attr__('Cari Produk', 'justg'); ?>" required>
                         <button type="submit" class="btn btn-light text-primary fw-semibold px-3" aria-label="<?php echo esc_attr__('Cari Produk', 'justg'); ?>">
                             <span><?php echo vmc_bootstrap_svg('search'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
                         </button>

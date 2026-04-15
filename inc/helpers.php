@@ -272,6 +272,11 @@ function vmc_marketplace_setting_url($type)
 
 function vmc_product_search_url()
 {
+    $archive_url = get_post_type_archive_link('store_product');
+    if (is_string($archive_url) && $archive_url !== '') {
+        return $archive_url;
+    }
+
     return vmc_marketplace_setting_url('catalog');
 }
 
