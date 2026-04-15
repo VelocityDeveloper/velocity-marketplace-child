@@ -523,10 +523,20 @@ function vmc_pagination($query)
         return '';
     }
 
+    $current = max(
+        1,
+        (int) get_query_var('paged'),
+        (int) get_query_var('page')
+    );
+
+    $big = 999999999;
+
     $links = paginate_links([
-        'total' => (int) $query->max_num_pages,
-        'current' => max(1, (int) get_query_var('paged')),
-        'type' => 'array',
+        'base'      => str_replace($big, '%#%', esc_url(get_pagenum_link($big))),
+        'format'    => '?paged=%#%',
+        'total'     => (int) $query->max_num_pages,
+        'current'   => $current,
+        'type'      => 'array',
         'prev_text' => '&laquo;',
         'next_text' => '&raquo;',
     ]);

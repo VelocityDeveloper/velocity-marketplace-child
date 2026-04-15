@@ -20,7 +20,11 @@ $about_title   = (string) get_theme_mod('vmc_about_title', __('Tentang Kami', 'j
 $about_content = (string) get_theme_mod('vmc_about_content', '');
 $blog_title    = __('Blog', 'justg');
 $blog_limit    = 2;
-$paged         = max(1, (int) get_query_var('paged'));
+$paged = max(
+    1,
+    (int) get_query_var('paged'),
+    (int) get_query_var('page')
+);
 
 $premium_query = vmc_products_query([
     'posts_per_page' => $premium_limit,
@@ -38,7 +42,7 @@ $latest_query = vmc_products_query([
 
 $top_sellers_query = vmc_products_query([
     'posts_per_page' => 4,
-    'meta_key'       => '_store_sold_count',
+    'meta_key'       => 'hit',
     'orderby'        => ['meta_value_num' => 'DESC', 'date' => 'DESC'],
     'order'          => 'DESC',
 ]);
@@ -106,7 +110,7 @@ $top_col_class = $promo_image ? 'col-lg-6' : 'col-12';
                                     <div class="<?php echo esc_attr($top_col_class); ?>">
                                         <div class="h-100">
                                             <div class="d-flex align-items-center justify-content-between mb-3">
-                                                <h2 class="h4 fw-bold mb-0"><?php esc_html_e('Produk Terlaris', 'justg'); ?></h2>
+                                                <h2 class="h4 fw-bold mb-0"><?php esc_html_e('Banyak Dilihat', 'justg'); ?></h2>
                                             </div>
                                             <div class="row row-cols-2 row-cols-md-4 g-3">
                                                 <?php while ($top_sellers_query->have_posts()) : $top_sellers_query->the_post(); ?>
