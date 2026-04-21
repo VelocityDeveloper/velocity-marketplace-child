@@ -59,12 +59,6 @@ body {
     width: auto;
 }
 
-.vmc-quick-link__icon svg,
-.vmc-quick-icon svg {
-    width: 18px;
-    height: 18px;
-}
-
 .vmc-quick-icon .vmp-cart-shortcut,
 .vmc-quick-icon .wps-cart-button,
 .vmc-quick-icon .wps-link-profile,
@@ -96,7 +90,6 @@ body {
 .vmc-main-strip__actions .vmp-shortcut svg,
 .vmc-main-strip__actions .wps-cart-button svg {
     fill: currentColor;
-    stroke: currentColor;
 }
 
 .vmc-main-strip__actions .vmp-cart-shortcut__badge,

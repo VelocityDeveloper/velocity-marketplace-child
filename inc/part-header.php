@@ -69,7 +69,7 @@ defined('ABSPATH') || exit;
             </div>
 
             <div class="col-12 col-lg-auto">
-                <div class="vmc-main-strip__actions d-flex align-items-center justify-content-center justify-content-lg-end flex-nowrap gap-3 text-primary overflow-auto pb-1">
+                <div class="vmc-main-strip__actions d-flex align-items-center justify-content-center justify-content-lg-end flex-nowrap gap-1 text-primary pb-1">
                     <?php echo vmc_shortcuts_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                 </div>
             </div>

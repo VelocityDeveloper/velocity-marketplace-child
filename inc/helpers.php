@@ -432,10 +432,15 @@ function vmc_product_card($product_id)
     $price_html = vmc_product_price_html($item);
     $meta_html = vmc_product_meta_html($item);
 
-    if (shortcode_exists('vmp_add_to_cart')) {
-        $action_html = do_shortcode('[vmp_add_to_cart id="' . $product_id . '" text="" class="btn btn-primary btn-sm w-100"]');
+    if (function_exists('wp_store_add_to_cart_button')) {
+        $action_html = wp_store_add_to_cart_button($product_id, [
+            'text' => '',
+            'class' => 'btn btn-primary btn-sm w-100 d-inline-flex align-items-center justify-content-center',
+        ]);
     } elseif (shortcode_exists('wp_store_add_to_cart')) {
         $action_html = do_shortcode('[wp_store_add_to_cart id="' . $product_id . '" text="" class="btn btn-primary btn-sm w-100 d-inline-flex align-items-center justify-content-center"]');
+    } elseif (shortcode_exists('vmp_add_to_cart')) {
+        $action_html = do_shortcode('[vmp_add_to_cart id="' . $product_id . '" text="" class="btn btn-primary btn-sm w-100"]');
     } else {
         $action_html = '';
     }
@@ -452,10 +457,12 @@ function vmc_product_card($product_id)
         $html .= '<a href="' . esc_url($link) . '" class="ratio ratio-1x1 d-block text-decoration-none bg-light">';
             $html .= '<img src="' . esc_url($thumb_url) . '" class="w-100 h-100 object-fit-cover" alt="' . esc_attr($title) . '" loading="lazy" decoding="async">';
         $html .= '</a>';
-        $html .= vmp_premium_badge_html([
-            'post_id' => $product_id,
-            'class' => 'badge bg-warning text-dark position-absolute start-0 top-0 ms-2 mt-2',
-        ]);
+        if (function_exists('vmp_premium_badge_html')) {
+            $html .= vmp_premium_badge_html([
+                'post_id' => $product_id,
+                'class' => 'badge bg-warning text-dark position-absolute start-0 top-0 ms-2 mt-2',
+            ]);
+        }
     $html .= '</div>';
     $html .= '<div class="card-body">';
     $html .= '<h3 class="h6 mb-2 lh-sm"><a href="' . esc_url($link) . '" class="text-dark text-decoration-none vmc-line-clamp-2">' . esc_html($title) . '</a></h3>';
