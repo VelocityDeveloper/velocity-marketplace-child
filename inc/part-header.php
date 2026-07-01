@@ -10,9 +10,10 @@ defined('ABSPATH') || exit;
                 wp_nav_menu([
                     'theme_location' => 'primary',
                     'container' => false,
-                    'menu_class' => 'menu navbar-nav flex-row ms-auto mb-0 small gap-3 align-items-center',
+                    'menu_class' => 'menu navbar-nav flex-row ms-auto mb-0 gap-3 align-items-center',
                     'fallback_cb' => 'vmc_top_menu_fallback',
-                    'depth' => 1,
+                    'depth' => 4,
+                    'walker' => class_exists('justg_WP_Bootstrap_Navwalker') ? new justg_WP_Bootstrap_Navwalker() : null,
                 ]);
                 ?>
             </div>
@@ -34,9 +35,10 @@ defined('ABSPATH') || exit;
                 wp_nav_menu([
                     'theme_location' => 'primary',
                     'container' => false,
-                    'menu_class' => 'menu navbar-nav flex-column mb-0 small',
+                    'menu_class' => 'menu navbar-nav flex-column mb-0',
                     'fallback_cb' => 'vmc_top_menu_fallback',
-                    'depth' => 1,
+                    'depth' => 4,
+                    'walker' => class_exists('justg_WP_Bootstrap_Navwalker') ? new justg_WP_Bootstrap_Navwalker() : null,
                 ]);
                 ?>
             </div>

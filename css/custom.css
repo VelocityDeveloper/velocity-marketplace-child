@@ -49,6 +49,52 @@ body {
     color: var(--vmc-primary);
 }
 
+.vmc-top-strip .dropdown-menu {
+    z-index: 1030;
+}
+
+/* Desktop: dropdown hover & absolute position */
+@media (min-width: 992px) {
+    .vmc-top-strip .navbar-nav .dropdown-menu {
+        position: absolute;
+    }
+
+    .vmc-top-strip .navbar .dropdown:hover > .dropdown-menu {
+        display: block !important;
+        margin-top: 0;
+    }
+
+    .vmc-top-strip .navbar .dropdown .dropdown-menu.show {
+        display: none;
+    }
+
+    .vmc-top-strip .navbar .dropdown-menu .dropdown-menu {
+        top: 0;
+        left: 100%;
+        margin-top: -0.5rem;
+    }
+
+    .vmc-top-strip .navbar .dropdown-menu .dropdown:not(:hover) > .dropdown-menu {
+        display: none !important;
+    }
+}
+
+@media (max-width: 991.98px) {
+    #vmcHeaderPrimaryNavMobile .dropdown-menu.show {
+        display: block !important;
+        position: static;
+        width: 100%;
+        margin: .25rem 0;
+        border: 0;
+        box-shadow: none;
+    }
+
+    #vmcHeaderPrimaryNavMobile .dropdown-menu.show .dropdown-menu {
+        display: block;
+        padding-left: 1rem;
+    }
+}
+
 .vmc-main-strip {
     background: #fff;
     border-bottom: 1px solid var(--vmc-border);
@@ -251,5 +297,45 @@ body {
     .vmc-main-strip__actions {
         justify-content: flex-start !important;
         flex-wrap: nowrap !important;
+    }
+}
+
+/* ── Nav menu: font-size 13px ── */
+.vmc-top-strip .menu-item > a,
+.vmc-top-strip .dropdown-item {
+    font-size: 13px;
+}
+
+/* ── Mobile offcanvas: submenu toggle ── */
+@media (max-width: 991.98px) {
+    #vmcHeaderPrimaryNavMobile .dropdown > a {
+        display: flex !important;
+        align-items: center !important;
+        width: 100%;
+    }
+
+    #vmcHeaderPrimaryNavMobile .dropdown-toggle::after {
+        content: "";
+        border: 0;
+        margin-left: auto;
+        width: 0.75rem;
+        height: 0.75rem;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%236b7280' viewBox='0 0 16 16'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        transition: transform 0.2s ease;
+    }
+
+    #vmcHeaderPrimaryNavMobile .dropdown.show > .dropdown-toggle::after {
+        transform: rotate(180deg);
+    }
+
+    #vmcHeaderPrimaryNavMobile .dropdown-menu .dropdown-item {
+        padding-left: 1.25rem;
+    }
+
+    #vmcHeaderPrimaryNavMobile .dropdown-menu .dropdown-menu .dropdown-item {
+        padding-left: 2rem;
     }
 }

@@ -33,6 +33,25 @@ function vmc_enqueue_assets()
         ['velocity-marketplace-child-style'],
         $child_version
     );
+
+    // Mobile submenu toggle: click parent → toggle submenu (prevent nav)
+    wp_add_inline_script('jquery', '
+        document.addEventListener("DOMContentLoaded", function () {
+            var menu = document.getElementById("vmcHeaderPrimaryNavMobile");
+            if (!menu) return;
+            menu.addEventListener("click", function (e) {
+                var link = e.target.closest(".dropdown > a");
+                if (!link || window.innerWidth >= 992) return;
+                e.preventDefault();
+                e.stopPropagation();
+                var sub = link.nextElementSibling;
+                if (sub && sub.classList.contains("dropdown-menu")) {
+                    sub.classList.toggle("show");
+                    link.parentElement.classList.toggle("show");
+                }
+            }, true);
+        });
+    ');
 }
 
 function vmc_enqueue_customizer_assets()
