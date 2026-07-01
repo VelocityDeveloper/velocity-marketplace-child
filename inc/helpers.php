@@ -280,6 +280,69 @@ function vmc_product_search_url()
     return vmc_marketplace_setting_url('catalog');
 }
 
+/**
+ * Menghasilkan form pencarian produk untuk header, template PHP, dan shortcode.
+ *
+ * Contoh PHP: echo vmc_search_form();
+ * Contoh shortcode: [vmc_search_form]
+ */
+function vmc_search_form($args = [])
+{
+    $args = wp_parse_args(is_array($args) ? $args : [], [
+        'class' => '',
+        'placeholder' => __('Cari Produk', 'justg'),
+        'required' => true,
+    ]);
+
+    $classes = ['vmc-search-form'];
+    foreach (preg_split('/\s+/', trim((string) $args['class'])) as $class_name) {
+        $class_name = sanitize_html_class($class_name);
+        if ($class_name !== '') {
+            $classes[] = $class_name;
+        }
+    }
+
+    $search_value = '';
+    if (isset($_GET['s'])) {
+        $search_value = sanitize_text_field((string) wp_unslash($_GET['s']));
+    } elseif (isset($_GET['search'])) {
+        $search_value = sanitize_text_field((string) wp_unslash($_GET['search']));
+    }
+
+    $label = trim((string) $args['placeholder']);
+    if ($label === '') {
+        $label = __('Cari Produk', 'justg');
+    }
+
+    $html = '<form class="' . esc_attr(implode(' ', array_unique($classes))) . '" action="' . esc_url(vmc_product_search_url()) . '" method="get">';
+    $html .= '<div class="input-group border rounded-3 overflow-hidden bg-white">';
+    $html .= '<input type="text" class="form-control border-0" name="s" value="' . esc_attr($search_value) . '" placeholder="' . esc_attr($label) . '"' . (!empty($args['required']) ? ' required' : '') . '>';
+    $html .= '<button type="submit" class="btn btn-light text-primary fw-semibold px-3" aria-label="' . esc_attr($label) . '">';
+    $html .= '<span>' . vmc_bootstrap_svg('search') . '</span>';
+    $html .= '</button></div></form>';
+
+    return $html;
+}
+
+function vmc_search_form_shortcode($atts = [])
+{
+    $atts = shortcode_atts([
+        'class' => '',
+        'placeholder' => __('Cari Produk', 'justg'),
+        'required' => 'true',
+    ], is_array($atts) ? $atts : [], 'vmc_search_form');
+
+    $required = !in_array(strtolower(trim((string) $atts['required'])), ['0', 'false', 'no', 'off'], true);
+
+    return vmc_search_form([
+        'class' => (string) $atts['class'],
+        'placeholder' => (string) $atts['placeholder'],
+        'required' => $required,
+    ]);
+}
+
+add_shortcode('vmc_search_form', 'vmc_search_form_shortcode');
+
 function vmc_currency_symbol()
 {
     if (class_exists('\\VelocityMarketplace\\Support\\Settings')) {
