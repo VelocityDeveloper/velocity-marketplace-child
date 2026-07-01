@@ -210,10 +210,6 @@ body {
     border-radius: 0.85rem;
 }
 
-.vmc-pagination-nav .page-link {
-    color: var(--vmc-primary);
-}
-
 .vmc-pagination-nav .active .page-link {
     background: var(--vmc-primary);
     border-color: var(--vmc-primary);
