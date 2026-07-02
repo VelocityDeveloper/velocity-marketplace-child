@@ -34,12 +34,23 @@ function vmc_enqueue_assets()
         $child_version
     );
 
-    // Mobile submenu toggle: click parent → toggle submenu (prevent nav)
+    // Mobile: klik teks parent menuju halaman, klik area panah membuka submenu.
     wp_add_inline_script('jquery', '
         document.addEventListener("DOMContentLoaded", function () {
             var menu = document.getElementById("vmcHeaderPrimaryNavMobile");
             if (!menu) return;
             menu.addEventListener("click", function (e) {
+                var label = e.target.closest(".dropdown > a > span[data-href]");
+                if (label && window.innerWidth < 992) {
+                    var href = label.getAttribute("data-href");
+                    if (href && href !== "#") {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        window.location.assign(href);
+                        return;
+                    }
+                }
+
                 var link = e.target.closest(".dropdown > a");
                 if (!link || window.innerWidth >= 992) return;
                 e.preventDefault();

@@ -3,6 +3,16 @@
 defined('ABSPATH') || exit;
 
 add_action('after_setup_theme', 'vmc_override_parent_shell', 20);
+add_filter('get_the_archive_title_prefix', 'vmc_remove_taxonomy_title_prefix');
+
+function vmc_remove_taxonomy_title_prefix($prefix)
+{
+    if (is_category() || is_tag() || is_tax()) {
+        return '';
+    }
+
+    return $prefix;
+}
 
 function vmc_override_parent_shell()
 {

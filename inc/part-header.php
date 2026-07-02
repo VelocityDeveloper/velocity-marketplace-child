@@ -4,13 +4,13 @@ defined('ABSPATH') || exit;
 ?>
 <div class="vmc-top-strip bg-light border-bottom">
     <div class="container">
-        <nav class="navbar navbar-light px-0 py-2">
+        <nav class="navbar navbar-light px-0 py-1">
             <div class="d-none d-lg-flex w-100">
                 <?php
                 wp_nav_menu([
                     'theme_location' => 'primary',
                     'container' => false,
-                    'menu_class' => 'menu navbar-nav flex-row ms-auto mb-0 gap-3 align-items-center',
+                    'menu_class' => 'menu navbar-nav flex-row ms-auto mb-0 align-items-center',
                     'fallback_cb' => 'vmc_top_menu_fallback',
                     'depth' => 4,
                     'walker' => class_exists('justg_WP_Bootstrap_Navwalker') ? new justg_WP_Bootstrap_Navwalker() : null,
